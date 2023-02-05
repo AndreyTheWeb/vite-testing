@@ -1,0 +1,5 @@
+name: github demo actions
+on: [push]
+jobs:
+  Explore-Github-Actions:
+    runs-on: ubuntu-latest
