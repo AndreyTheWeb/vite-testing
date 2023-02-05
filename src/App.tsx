@@ -1,34 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useEffect } from "react";
+import "./App.css";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, setData, setError } from "./store";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const data = useSelector((state: RootState) => state.data);
+  const isError = useSelector((state: RootState) => state.error);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const loadData = async () => {
+      const postId = Math.floor(Math.random() * 10);
+      const dataRow = await fetch(
+        `https://jsonplaceholder.typicode.com/posts/${postId}`
+      );
+      if (!dataRow.ok) {
+        dispatch(setError(true));
+        return;
+      }
+
+      const dataToJson = await dataRow.json();
+      console.log(dataToJson);
+      dispatch(setData(dataToJson.body));
+    };
+
+    loadData();
+  }, []);
+
+  const MainData: React.FC = () => {
+    if (!data) {
+      return <div>plz wait data</div>;
+    }
+    if (isError) {
+      return <div>Go home baby, service is not working</div>;
+    }
+    return <div>{data}</div>;
+  };
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <MainData />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
